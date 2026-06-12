@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Question For You 🦎</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Baloo 2', 'Zen Maru Gothic', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fff7e0 0%, #fdfdf2 45%, #e3f4ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  /* ---- floating background bits ---- */
+  .float-item {
+    position: fixed;
+    font-size: 24px;
+    opacity: 0.45;
+    animation: floatUp linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(110vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+  }
+
+  /* ---- main card ---- */
+  .card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    border-radius: 36px;
+    box-shadow: 0 20px 60px rgba(232, 162, 61, 0.22), 0 0 0 6px rgba(255, 255, 255, 0.6);
+    padding: 44px 48px 52px;
+    max-width: 560px;
+    width: calc(100% - 32px);
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .screen { display: none; animation: popIn 0.5s cubic-bezier(.18,.89,.32,1.28); }
+  .screen.active { display: block; }
+  @keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    font-size: clamp(22px, 4.5vw, 30px);
+    color: #d97b2e;
+    line-height: 1.5;
+    margin: 18px 0 6px;
+    font-weight: 800;
+  }
+  .subtitle {
+    color: #a89878;
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+
+  /* ---- gecko ---- */
+  .gecko-wrap {
+    width: 230px;
+    margin: 0 auto;
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+  }
+  .gecko-wrap.excited { animation: bounceParty 0.55s ease-in-out infinite; }
+  @keyframes bounceParty {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-18px) rotate(4deg); }
+  }
+  .gecko-wrap.sad { animation: shiver 0.18s linear infinite; }
+  @keyframes shiver {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+
+  /* eyelids blink */
+  .eyelid { animation: blink 4.2s infinite; transform-origin: center; }
+  @keyframes blink {
+    0%, 94%, 100% { transform: scaleY(0); }
+    96%, 98% { transform: scaleY(1); }
+  }
+
+  .speech {
+    min-height: 34px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #e8843d;
+    margin: 10px 0 4px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+
+  /* ---- buttons area ---- */
+  .btn-area {
+    position: relative;
+    height: 120px;
+    margin-top: 18px;
+  }
+  .btn {
+    border: none;
+    border-radius: 50px;
+    padding: 16px 44px;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'Baloo 2', 'Zen Maru Gothic', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, font-size 0.25s ease, padding 0.25s ease;
+  }
+  .btn:active { transform: scale(0.93); }
+
+  #yesBtn {
+    background: linear-gradient(135deg, #ffc14d, #ff9234);
+    color: white;
+    box-shadow: 0 8px 22px rgba(255, 146, 52, 0.4);
+    position: absolute;
+    left: 28%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  #yesBtn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 12px 30px rgba(255, 146, 52, 0.55);
+  }
+
+  #noBtn {
+    background: #f0f0f5;
+    color: #9a9ab0;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    position: absolute;
+    left: 72%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.25s cubic-bezier(.18,.89,.32,1.28), top 0.25s cubic-bezier(.18,.89,.32,1.28);
+  }
+
+  /* ---- date select ---- */
+  .date-options {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .date-card {
+    background: linear-gradient(160deg, #fffdf5, #fff4dd);
+    border: 3px solid #ffd9a0;
+    border-radius: 24px;
+    padding: 22px 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .date-card:hover {
+    transform: translateY(-6px) scale(1.05);
+    border-color: #ff9234;
+    box-shadow: 0 14px 30px rgba(255, 146, 52, 0.28);
+  }
+  .date-card .emoji { font-size: 34px; display: block; margin-bottom: 6px; }
+  .date-card .day { font-size: 26px; font-weight: 900; color: #d97b2e; }
+  .date-card .week { font-size: 14px; color: #a89878; margin-top: 2px; }
+
+  /* ---- quiz ---- */
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .progress-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ffe2bb;
+    transition: all 0.25s ease;
+  }
+  .progress-dots span.on { background: #ff9234; transform: scale(1.25); }
+
+  .quiz-q {
+    font-size: 22px;
+    font-weight: 800;
+    color: #d97b2e;
+    margin-bottom: 20px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .quiz-opt {
+    background: linear-gradient(160deg, #fffdf5, #fff4dd);
+    border: 3px solid #ffd9a0;
+    border-radius: 18px;
+    padding: 14px 20px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #b07a3a;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .quiz-opt:hover {
+    transform: translateX(6px) scale(1.03);
+    border-color: #ff9234;
+    box-shadow: 0 8px 20px rgba(255, 146, 52, 0.25);
+  }
+
+  /* ---- final ---- */
+  .final-date {
+    font-size: 40px;
+    font-weight: 900;
+    color: #ff9234;
+    margin: 12px 0 6px;
+  }
+  .chips {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 14px 0 4px;
+  }
+  .chip {
+    background: #fff4dd;
+    border: 2px solid #ffd9a0;
+    color: #b07a3a;
+    border-radius: 30px;
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .coming-soon {
+    display: inline-block;
+    margin-top: 16px;
+    background: #fff8ec;
+    border: 2px dashed #ffd9a0;
+    color: #c08a4a;
+    border-radius: 18px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    line-height: 1.7;
+  }
+
+  /* ---- confetti ---- */
+  .confetti {
+    position: fixed;
+    top: -20px;
+    font-size: 22px;
+    z-index: 10;
+    pointer-events: none;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.8; }
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 18px 40px; }
+    .btn { padding: 14px 34px; font-size: 18px; }
+    .gecko-wrap { width: 175px; }
+    .btn-area { height: 130px; }
+    .date-card { padding: 18px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- SCREEN 1 : the question -->
+  <div class="screen active" id="screen1">
+    <div class="gecko-wrap" id="geckoWrap">
+      <!-- ===== cute leopard gecko ===== -->
+      <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- tail -->
+        <path d="M178 158 Q 228 168 224 130 Q 222 108 200 116 Q 208 124 204 132 Q 198 142 178 140 Z"
+              fill="#ffd56b" stroke="#e8a23d" stroke-width="3" stroke-linejoin="round"/>
+        <ellipse cx="206" cy="130" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+        <!-- body -->
+        <ellipse cx="128" cy="152" rx="58" ry="40" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
+        <!-- belly -->
+        <ellipse cx="124" cy="164" rx="38" ry="24" fill="#fff3d6"/>
+        <!-- spots -->
+        <ellipse cx="96" cy="132" rx="6" ry="5" fill="#c97b2d" opacity="0.55"/>
+        <ellipse cx="150" cy="126" rx="7" ry="5" fill="#c97b2d" opacity="0.55"/>
+        <ellipse cx="170" cy="148" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+        <ellipse cx="120" cy="124" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+        <!-- legs -->
+        <ellipse cx="86" cy="186" rx="14" ry="9" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
+        <ellipse cx="162" cy="186" rx="14" ry="9" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
+        <!-- head -->
+        <ellipse cx="118" cy="84" rx="64" ry="56" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
+        <!-- head spots -->
+        <ellipse cx="78" cy="48" rx="6" ry="5" fill="#c97b2d" opacity="0.5"/>
+        <ellipse cx="158" cy="48" rx="6" ry="5" fill="#c97b2d" opacity="0.5"/>
+        <ellipse cx="118" cy="36" rx="5" ry="4" fill="#c97b2d" opacity="0.5"/>
+        <!-- BIG eyes -->
+        <g id="eyes">
+          <circle cx="88" cy="82" r="24" fill="#fff" stroke="#e8a23d" stroke-width="2.5"/>
+          <circle cx="148" cy="82" r="24" fill="#fff" stroke="#e8a23d" stroke-width="2.5"/>
+          <g id="pupils">
+            <circle id="pupilL" cx="90" cy="84" r="14" fill="#3b2b20"/>
+            <circle id="pupilR" cx="150" cy="84" r="14" fill="#3b2b20"/>
+            <circle cx="95" cy="78" r="5.5" fill="#fff"/>
+            <circle cx="155" cy="78" r="5.5" fill="#fff"/>
+            <circle cx="86" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
+            <circle cx="146" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
+          </g>
+          <!-- blinking eyelids -->
+          <ellipse class="eyelid" cx="88" cy="82" rx="24" ry="24" fill="#ffd56b"/>
+          <ellipse class="eyelid" cx="148" cy="82" rx="24" ry="24" fill="#ffd56b"/>
+        </g>
+        <!-- tears (hidden until sad) -->
+        <g id="tears" opacity="0">
+          <path d="M70 104 Q 66 116 70 122 Q 74 116 70 104" fill="#7ec8f5"/>
+          <path d="M166 104 Q 162 116 166 122 Q 170 116 166 104" fill="#7ec8f5"/>
+        </g>
+        <!-- blush -->
+        <ellipse cx="66" cy="106" rx="10" ry="6" fill="#ffc6a3" opacity="0.8"/>
+        <ellipse cx="170" cy="106" rx="10" ry="6" fill="#ffc6a3" opacity="0.8"/>
+        <!-- mouth: happy / sad swap -->
+        <path id="mouthHappy" d="M104 116 Q 118 128 132 116" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round"/>
+        <path id="mouthSad" d="M104 124 Q 118 112 132 124" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+        <!-- tiny deco -->
+        <text x="196" y="50" font-size="22">✨</text>
+      </svg>
+    </div>
+
+    <h1>Would you accept going out<br>on a date with <span style="color:#ff9234">Arlong</span>? 🦎</h1>
+
+    <div class="speech" id="speech"></div>
+
+    <div class="btn-area" id="btnArea">
+      <button class="btn" id="yesBtn">Yes! 🙌</button>
+      <button class="btn" id="noBtn">No</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 : pick a date -->
+  <div class="screen" id="screen2">
+    <div style="font-size:64px;">🦎🎉</div>
+    <h1>Nice！</h1>
+    <p class="subtitle">那要選哪一天呢？</p>
+    <div class="date-options">
+      <div class="date-card" data-date="6/20 (六)">
+        <span class="emoji">🌞</span>
+        <div class="day">6 / 20</div>
+        <div class="week">星期六</div>
+      </div>
+      <div class="date-card" data-date="6/21 (日)">
+        <span class="emoji">🌈</span>
+        <div class="day">6 / 21</div>
+        <div class="week">星期日</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 : mini quiz -->
+  <div class="screen" id="screenQuiz">
+    <div style="font-size:48px;">📋🦎</div>
+    <p class="subtitle" style="margin-top:10px;">順便做個小調查，行程會照這個排～</p>
+    <div class="progress-dots" id="quizDots"></div>
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+  </div>
+
+  <!-- SCREEN 4 : confirmed -->
+  <div class="screen" id="screenFinal">
+    <div style="font-size:64px;">🗓️✨</div>
+    <h1>就這麼說定了！</h1>
+    <div class="final-date" id="finalDate"></div>
+    <div class="chips" id="finalChips"></div>
+    <div class="coming-soon">
+      🗺️ 行程規劃中，會參考你的答案安排<br>
+      Coming Soon ✨
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ---------- floating background ---------- */
+  const floatEmojis = ['✨', '🦎', '🌿', '⭐', '☁️', '🍀'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'float-item';
+    el.textContent = floatEmojis[i % floatEmojis.length];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (16 + Math.random() * 20) + 'px';
+    el.style.animationDuration = (9 + Math.random() * 14) + 's';
+    el.style.animationDelay = (-Math.random() * 18) + 's';
+    document.body.appendChild(el);
+  }
+
+  const isTouch = window.matchMedia('(hover: none)').matches;
+
+  /* ---------- gecko eyes follow cursor / finger ---------- */
+  const pupilL = document.getElementById('pupilL');
+  const pupilR = document.getElementById('pupilR');
+  function moveEyes(x, y) {
+    const dx = (x / window.innerWidth - 0.5) * 8;
+    const dy = (y / window.innerHeight - 0.5) * 8;
+    pupilL.setAttribute('cx', 90 + dx);  pupilL.setAttribute('cy', 84 + dy);
+    pupilR.setAttribute('cx', 150 + dx); pupilR.setAttribute('cy', 84 + dy);
+  }
+  document.addEventListener('mousemove', e => moveEyes(e.clientX, e.clientY));
+  document.addEventListener('touchmove', e => {
+    if (e.touches[0]) moveEyes(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  /* ---------- No button: run away + plead ---------- */
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const speech = document.getElementById('speech');
+  const geckoWrap = document.getElementById('geckoWrap');
+  const tears = document.getElementById('tears');
+  const mouthHappy = document.getElementById('mouthHappy');
+  const mouthSad = document.getElementById('mouthSad');
+
+  const pleas = [
+    'Are you sure? 🤔',
+    'Please don’t 🥺',
+    'Really...? 😢',
+    '再考慮一下嘛',
+    'QQ',
+    'Last chance! 🙏',
+    '只剩 Yes 可以按囉 😆',
+  ];
+  let noCount = 0;
+
+  function geckoSad() {
+    geckoWrap.classList.add('sad');
+    tears.setAttribute('opacity', '1');
+    mouthHappy.setAttribute('opacity', '0');
+    mouthSad.setAttribute('opacity', '1');
+    clearTimeout(geckoSad._t);
+    geckoSad._t = setTimeout(() => {
+      geckoWrap.classList.remove('sad');
+      tears.setAttribute('opacity', '0');
+      mouthHappy.setAttribute('opacity', '1');
+      mouthSad.setAttribute('opacity', '0');
+    }, 1600);
+  }
+
+  function dodge() {
+    const x = 15 + Math.random() * 70;   // % within area
+    const y = 10 + Math.random() * 80;
+    noBtn.style.left = x + '%';
+    noBtn.style.top = y + '%';
+    // occasionally escape sideways (desktop only, keeps it tappable on phones)
+    if (!isTouch && Math.random() < 0.3) {
+      noBtn.style.left = (Math.random() < 0.5 ? -8 : 108) + '%';
+    }
+  }
+
+  // on touch devices mouseenter would swallow the tap, so dodge only happens on click
+  if (!isTouch) {
+    noBtn.addEventListener('mouseenter', () => {
+      dodge();
+      geckoSad();
+    });
+  }
+
+  noBtn.addEventListener('click', e => {
+    e.preventDefault();
+    speech.textContent = pleas[Math.min(noCount, pleas.length - 1)];
+    noCount++;
+    geckoSad();
+    dodge();
+    // Yes grows, No shrinks (capped so it stays inside small screens)
+    const maxGrow = isTouch || window.innerWidth < 480 ? 1.5 : 2.2;
+    const grow = Math.min(1 + noCount * 0.18, maxGrow);
+    yesBtn.style.fontSize = (20 * grow) + 'px';
+    yesBtn.style.padding = (16 * grow) + 'px ' + (44 * grow) + 'px';
+    const shrink = Math.max(0.45, 1 - noCount * 0.1);
+    noBtn.style.fontSize = (20 * shrink) + 'px';
+    noBtn.style.padding = (16 * shrink) + 'px ' + (44 * shrink) + 'px';
+    if (noCount >= 7) {
+      noBtn.style.display = 'none';
+      speech.textContent = 'No 按鈕逃跑了 😆';
+      yesBtn.style.left = '50%';
+    }
+  });
+
+  /* ---------- confetti ---------- */
+  function confettiBurst() {
+    const pieces = ['🎉', '✨', '🦎', '⭐', '🎊', '🌟'];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.fontSize = (14 + Math.random() * 22) + 'px';
+      c.style.animationDuration = (2 + Math.random() * 3) + 's';
+      c.style.animationDelay = (Math.random() * 0.8) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 6000);
+    }
+  }
+
+  /* ---------- screen flow ---------- */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  yesBtn.addEventListener('click', () => {
+    geckoWrap.classList.remove('sad');
+    geckoWrap.classList.add('excited');
+    confettiBurst();
+    setTimeout(() => showScreen('screen2'), 600);
+  });
+
+  /* ---------- date pick ---------- */
+  let pickedDate = '';
+  document.querySelectorAll('.date-card').forEach(card => {
+    card.addEventListener('click', () => {
+      pickedDate = card.dataset.date;
+      confettiBurst();
+      startQuiz();
+    });
+  });
+
+  /* ---------- mini quiz ---------- */
+  const quiz = [
+    { key: 'food',  label: '想吃',   q: '當天想吃什麼？🍴',     options: ['🍣 日式', '🍝 義式', '🍲 火鍋', '🍰 甜點咖啡', '🤷 都可以'] },
+    { key: 'scene', label: '室內外', q: '喜歡室內還是戶外？🌤️', options: ['🌳 戶外走走', '🏛️ 室內行程', '✌️ 混搭都好'] },
+    { key: 'style', label: '風格',   q: '想去哪種地方？📍',     options: ['☕ 咖啡廳', '🎨 展覽', '🌊 郊外踏青', '🎳 遊戲娛樂'] },
+  ];
+  const answers = {};
+  let quizIdx = 0;
+
+  function startQuiz() {
+    showScreen('screenQuiz');
+    renderQuiz();
+  }
+
+  function renderQuiz() {
+    const item = quiz[quizIdx];
+    document.getElementById('quizDots').innerHTML =
+      quiz.map((_, i) => `<span class="${i <= quizIdx ? 'on' : ''}"></span>`).join('');
+    document.getElementById('quizQ').textContent = item.q;
+    const wrap = document.getElementById('quizOptions');
+    wrap.innerHTML = '';
+    item.options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = opt;
+      b.addEventListener('click', () => {
+        answers[item.key] = opt;
+        quizIdx++;
+        if (quizIdx < quiz.length) {
+          renderQuiz();
+        } else {
+          finish();
+        }
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  /* ---------- finish + notify ---------- */
+  function finish() {
+    document.getElementById('finalDate').textContent = '📅 ' + pickedDate;
+    document.getElementById('finalChips').innerHTML =
+      quiz.map(item => `<span class="chip">${item.label}：${answers[item.key]}</span>`).join('');
+    confettiBurst();
+    showScreen('screenFinal');
+    sendNotify();
+  }
+
+  function sendNotify() {
+    if (location.protocol === 'file:') return;  // local preview, don't send
+    const endpoint = atob('aHR0cHM6Ly9mb3Jtc3VibWl0LmNvL2FqYXgvdG9ueTA5MTIwNDU1OTZAZ21haWwuY29t');
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        _subject: '🦎 她答應了！選了 ' + pickedDate,
+        _template: 'table',
+        日期: pickedDate,
+        想吃: answers.food || '-',
+        室內戶外: answers.scene || '-',
+        行程風格: answers.style || '-',
+        按了幾次No: String(noCount),
+        填答時間: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+      }),
+    }).catch(() => {});
+  }
+</script>
+</body>
+</html>
