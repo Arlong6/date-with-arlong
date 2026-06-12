@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Question For You 🦎</title>
+<title>有一個問題想問你 🦎</title>
+<meta property="og:title" content="有一個問題想問你 🦎">
+<meta property="og:description" content="有一封信要給你，點開看看吧！">
+<meta property="og:image" content="https://arlong6.github.io/date-with-arlong/og.png">
+<meta property="og:url" content="https://arlong6.github.io/date-with-arlong/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦎</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -36,7 +42,73 @@
     100% { transform: translateY(-10vh) rotate(360deg); }
   }
 
-  /* ---- main card ---- */
+  /* ================= envelope intro ================= */
+  #envOverlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: linear-gradient(160deg, #fff7e0 0%, #fdfdf2 45%, #e3f4ff 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 26px;
+    transition: opacity 0.6s ease;
+  }
+  #envOverlay.fade { opacity: 0; pointer-events: none; }
+  .env-hint {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 20px; font-weight: 800; color: #d97b2e;
+    animation: hintPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes hintPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .envelope {
+    position: relative; width: 280px; height: 185px;
+    cursor: pointer;
+    filter: drop-shadow(0 18px 30px rgba(232, 162, 61, 0.3));
+    animation: envFloat 2.6s ease-in-out infinite;
+  }
+  @keyframes envFloat { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+  .env-body {
+    position: absolute; inset: 0;
+    background: #f3d49c; border-radius: 14px;   /* envelope interior */
+  }
+  .letter {
+    position: absolute; left: 14px; right: 14px; top: 12px; height: 140px;
+    background: #fff; border-radius: 10px; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.55s cubic-bezier(.18,.89,.32,1.28) 0.25s;
+  }
+  .env-pocket {
+    position: absolute; inset: 0; z-index: 2;
+    background: #ffe3ae; border-radius: 14px;
+    clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+  }
+  .env-flap {
+    position: absolute; top: 0; left: 0; right: 0; height: 105px; z-index: 3;
+    background: #ffd9a0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-radius: 14px 14px 0 0;
+    transform-origin: top center;
+    transition: transform 0.5s ease;
+  }
+  .seal {
+    position: absolute; left: 50%; top: 100px; z-index: 4;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, #ffc14d, #ff9234);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(255, 146, 52, 0.45), inset 0 -3px 0 rgba(0,0,0,0.08);
+    transition: all 0.4s ease;
+  }
+  .envelope.open .env-flap { transform: rotateX(180deg); z-index: 0; }
+  .envelope.open .seal { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  .envelope.open .letter { transform: translateY(-118px); z-index: 2; }
+  .env-tap {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px; color: #b89b6a;
+  }
+
+  /* ================= main card ================= */
   .card {
     position: relative;
     z-index: 2;
@@ -48,8 +120,11 @@
     max-width: 560px;
     width: calc(100% - 32px);
     text-align: center;
-    transition: transform 0.3s ease;
+    opacity: 0;
+    transform: scale(0.82) translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.18,.89,.32,1.28);
   }
+  .card.show { opacity: 1; transform: scale(1) translateY(0); }
 
   .screen { display: none; animation: popIn 0.5s cubic-bezier(.18,.89,.32,1.28); }
   .screen.active { display: block; }
@@ -72,11 +147,24 @@
     font-family: 'Zen Maru Gothic', sans-serif;
   }
 
+  /* ---- sound toggle ---- */
+  #sndBtn {
+    position: fixed; top: 16px; right: 16px; z-index: 40;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: none; cursor: pointer; font-size: 19px;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 4px 14px rgba(232, 162, 61, 0.25);
+    transition: transform 0.15s ease;
+  }
+  #sndBtn:hover { transform: scale(1.1); }
+
   /* ---- gecko ---- */
   .gecko-wrap {
     width: 230px;
     margin: 0 auto;
     animation: bob 2.6s ease-in-out infinite;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
   @keyframes bob {
     0%, 100% { transform: translateY(0); }
@@ -92,6 +180,23 @@
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-2px); }
     75% { transform: translateX(2px); }
+  }
+  .gecko-wrap svg { transform-box: fill-box; transform-origin: 50% 85%; }
+  .gecko-wrap svg.boing { animation: boing 0.5s ease; }
+  @keyframes boing {
+    0%   { transform: scale(1, 1); }
+    30%  { transform: scale(1.14, 0.84); }
+    60%  { transform: scale(0.9, 1.1); }
+    100% { transform: scale(1, 1); }
+  }
+  #tailG {
+    transform-box: view-box;
+    transform-origin: 76% 64%;
+    animation: wag 3s ease-in-out infinite;
+  }
+  @keyframes wag {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(8deg); }
   }
 
   /* eyelids blink */
@@ -162,6 +267,7 @@
     flex-wrap: wrap;
   }
   .date-card {
+    position: relative;
     background: linear-gradient(160deg, #fffdf5, #fff4dd);
     border: 3px solid #ffd9a0;
     border-radius: 24px;
@@ -174,6 +280,19 @@
     transform: translateY(-6px) scale(1.05);
     border-color: #ff9234;
     box-shadow: 0 14px 30px rgba(255, 146, 52, 0.28);
+  }
+  .date-card.picked {
+    border-color: #ff9234;
+    transform: scale(1.08);
+    box-shadow: 0 14px 30px rgba(255, 146, 52, 0.35);
+  }
+  .date-card.picked::after {
+    content: '✔';
+    position: absolute; top: -12px; right: -12px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #ff9234; color: #fff;
+    font-size: 17px; line-height: 32px;
+    animation: popIn 0.3s cubic-bezier(.18,.89,.32,1.28);
   }
   .date-card .emoji { font-size: 34px; display: block; margin-bottom: 6px; }
   .date-card .day { font-size: 26px; font-weight: 900; color: #d97b2e; }
@@ -194,6 +313,11 @@
   }
   .progress-dots span.on { background: #ff9234; transform: scale(1.25); }
 
+  #quizBox.slide { animation: slideIn 0.35s ease both; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(46px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
   .quiz-q {
     font-size: 22px;
     font-weight: 800;
@@ -225,45 +349,91 @@
     border-color: #ff9234;
     box-shadow: 0 8px 20px rgba(255, 146, 52, 0.25);
   }
+  .quiz-opt.picked {
+    border-color: #ff9234;
+    background: linear-gradient(135deg, #ffc14d, #ff9234);
+    color: #fff;
+    transform: scale(1.05);
+  }
 
-  /* ---- final ---- */
+  /* ---- final : date ticket ---- */
+  .ticket {
+    position: relative;
+    max-width: 360px;
+    margin: 18px auto 0;
+    background: #fffdf6;
+    border: 3px solid #ffd9a0;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(232, 162, 61, 0.22);
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+  .ticket-head {
+    background: linear-gradient(135deg, #ffc14d, #ff9234);
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: 3px;
+    padding: 12px;
+    font-size: 15px;
+    font-family: 'Baloo 2', sans-serif;
+  }
+  .ticket-body { padding: 20px 22px 18px; position: relative; }
+  .ticket-tear {
+    position: relative;
+    border-top: 3px dashed #ffd9a0;
+    margin: 0 14px;
+  }
+  .ticket-tear::before, .ticket-tear::after {
+    content: '';
+    position: absolute; top: -14px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #fcf8ed;
+    border: 3px solid #ffd9a0;
+  }
+  .ticket-tear::before { left: -31px; clip-path: inset(0 0 0 50%); }
+  .ticket-tear::after  { right: -31px; clip-path: inset(0 50% 0 0); }
   .final-date {
-    font-size: 40px;
+    font-size: 38px;
     font-weight: 900;
     color: #ff9234;
-    margin: 12px 0 6px;
+    margin: 4px 0 2px;
+    font-family: 'Baloo 2', sans-serif;
   }
+  .admit { font-size: 14px; color: #a89878; font-weight: 700; margin-bottom: 4px; }
   .chips {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
-    margin: 14px 0 4px;
+    margin: 12px 0 4px;
   }
   .chip {
     background: #fff4dd;
     border: 2px solid #ffd9a0;
     color: #b07a3a;
     border-radius: 30px;
-    padding: 7px 16px;
-    font-size: 14px;
+    padding: 6px 14px;
+    font-size: 13px;
     font-weight: 700;
-    font-family: 'Zen Maru Gothic', sans-serif;
   }
-  .coming-soon {
-    display: inline-block;
-    margin-top: 16px;
-    background: #fff8ec;
-    border: 2px dashed #ffd9a0;
+  .ticket-foot {
+    padding: 12px;
+    font-size: 12.5px;
     color: #c08a4a;
-    border-radius: 18px;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-family: 'Zen Maru Gothic', sans-serif;
-    line-height: 1.7;
+    letter-spacing: 1px;
   }
 
-  /* ---- confetti ---- */
+  /* ---- sparkles & confetti ---- */
+  .spark {
+    position: fixed;
+    pointer-events: none;
+    z-index: 60;
+    animation: sparkFade 0.7s ease-out forwards;
+  }
+  @keyframes sparkFade {
+    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+  }
   .confetti {
     position: fixed;
     top: -20px;
@@ -283,22 +453,44 @@
     .gecko-wrap { width: 175px; }
     .btn-area { height: 130px; }
     .date-card { padding: 18px 24px; }
+    .envelope { width: 240px; height: 160px; }
+    .envelope .letter { top: 10px; height: 120px; }
+    .env-flap { height: 90px; }
+    .seal { top: 86px; }
+    .envelope.open .letter { transform: translateY(-102px); }
   }
 </style>
 </head>
 <body>
 
-<div class="card">
+<button id="sndBtn" title="音效開關">🔊</button>
+
+<!-- ===== envelope intro ===== -->
+<div id="envOverlay">
+  <div class="env-hint">有一封信要給你 📮</div>
+  <div class="envelope" id="envelope">
+    <div class="env-body"></div>
+    <div class="letter">🦎💌</div>
+    <div class="env-pocket"></div>
+    <div class="env-flap"></div>
+    <div class="seal">🦎</div>
+  </div>
+  <div class="env-tap">點一下打開 ✨</div>
+</div>
+
+<div class="card" id="mainCard">
 
   <!-- SCREEN 1 : the question -->
   <div class="screen active" id="screen1">
     <div class="gecko-wrap" id="geckoWrap">
       <!-- ===== cute leopard gecko ===== -->
       <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
-        <!-- tail -->
-        <path d="M178 158 Q 228 168 224 130 Q 222 108 200 116 Q 208 124 204 132 Q 198 142 178 140 Z"
-              fill="#ffd56b" stroke="#e8a23d" stroke-width="3" stroke-linejoin="round"/>
-        <ellipse cx="206" cy="130" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+        <!-- tail (wags) -->
+        <g id="tailG">
+          <path d="M178 158 Q 228 168 224 130 Q 222 108 200 116 Q 208 124 204 132 Q 198 142 178 140 Z"
+                fill="#ffd56b" stroke="#e8a23d" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse cx="206" cy="130" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+        </g>
         <!-- body -->
         <ellipse cx="128" cy="152" rx="58" ry="40" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
         <!-- belly -->
@@ -329,6 +521,11 @@
             <circle cx="86" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
             <circle cx="146" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
           </g>
+          <!-- starry eyes when hovering Yes -->
+          <g id="starEyes" opacity="0">
+            <text x="73" y="93" font-size="30">✨</text>
+            <text x="133" y="93" font-size="30">✨</text>
+          </g>
           <!-- blinking eyelids -->
           <ellipse class="eyelid" cx="88" cy="82" rx="24" ry="24" fill="#ffd56b"/>
           <ellipse class="eyelid" cx="148" cy="82" rx="24" ry="24" fill="#ffd56b"/>
@@ -344,6 +541,8 @@
         <!-- mouth: happy / sad swap -->
         <path id="mouthHappy" d="M104 116 Q 118 128 132 116" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round"/>
         <path id="mouthSad" d="M104 124 Q 118 112 132 124" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+        <!-- blep tongue (hidden, shows on tap) -->
+        <ellipse id="tongue" cx="127" cy="121" rx="6" ry="9" fill="#ff8fa3" stroke="#e76e8a" stroke-width="2" opacity="0"/>
         <!-- tiny deco -->
         <text x="196" y="50" font-size="22">✨</text>
       </svg>
@@ -365,12 +564,12 @@
     <h1>Nice！</h1>
     <p class="subtitle">那要選哪一天呢？</p>
     <div class="date-options">
-      <div class="date-card" data-date="6/20 (六)">
+      <div class="date-card" data-date="6/20 (六)" data-no="0620">
         <span class="emoji">🌞</span>
         <div class="day">6 / 20</div>
         <div class="week">星期六</div>
       </div>
-      <div class="date-card" data-date="6/21 (日)">
+      <div class="date-card" data-date="6/21 (日)" data-no="0621">
         <span class="emoji">🌈</span>
         <div class="day">6 / 21</div>
         <div class="week">星期日</div>
@@ -383,19 +582,25 @@
     <div style="font-size:48px;">📋🦎</div>
     <p class="subtitle" style="margin-top:10px;">順便做個小調查，行程會照這個排～</p>
     <div class="progress-dots" id="quizDots"></div>
-    <div class="quiz-q" id="quizQ"></div>
-    <div class="quiz-options" id="quizOptions"></div>
+    <div id="quizBox">
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+    </div>
   </div>
 
-  <!-- SCREEN 4 : confirmed -->
+  <!-- SCREEN 4 : date ticket -->
   <div class="screen" id="screenFinal">
-    <div style="font-size:64px;">🗓️✨</div>
-    <h1>就這麼說定了！</h1>
-    <div class="final-date" id="finalDate"></div>
-    <div class="chips" id="finalChips"></div>
-    <div class="coming-soon">
-      🗺️ 行程規劃中，會參考你的答案安排<br>
-      Coming Soon ✨
+    <div style="font-size:56px;">🎫✨</div>
+    <h1 style="margin-top:6px;">就這麼說定了！</h1>
+    <div class="ticket">
+      <div class="ticket-head">DATE TICKET</div>
+      <div class="ticket-body">
+        <div class="final-date" id="finalDate"></div>
+        <div class="admit">ADMIT 2 ── 你 ＆ Arlong 🦎</div>
+        <div class="chips" id="finalChips"></div>
+      </div>
+      <div class="ticket-tear"></div>
+      <div class="ticket-foot" id="ticketNo">行程規劃中 · COMING SOON ✨</div>
     </div>
   </div>
 
@@ -417,6 +622,81 @@
 
   const isTouch = window.matchMedia('(hover: none)').matches;
 
+  /* ---------- tiny synth sound effects ---------- */
+  let audioCtx = null;
+  let soundOn = true;
+  const sndBtn = document.getElementById('sndBtn');
+  sndBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    sndBtn.textContent = soundOn ? '🔊' : '🔇';
+  });
+  function tone(freq, dur, type = 'sine', slideTo = null, gain = 0.07, delay = 0) {
+    if (!soundOn) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = audioCtx.currentTime + delay;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+      g.gain.setValueAtTime(gain, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0 + dur + 0.02);
+    } catch (e) {}
+  }
+  const sndPop  = () => tone(520, 0.1, 'sine', 220);
+  const sndTick = () => tone(740, 0.07, 'triangle');
+  const sndYay  = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.16, 'sine', null, 0.06, i * 0.09));
+  const sndAww  = () => tone(430, 0.28, 'sine', 230, 0.05);
+
+  /* ---------- envelope intro ---------- */
+  const envOverlay = document.getElementById('envOverlay');
+  const envelope = document.getElementById('envelope');
+  let envOpened = false;
+  if (location.hash === '#open') {   // skip intro (testing / direct link)
+    envOpened = true;
+    envOverlay.remove();
+    document.getElementById('mainCard').classList.add('show');
+  }
+  envelope.addEventListener('click', () => {
+    if (envOpened) return;
+    envOpened = true;
+    sndPop();
+    envelope.classList.add('open');
+    setTimeout(() => {
+      envOverlay.classList.add('fade');
+      document.getElementById('mainCard').classList.add('show');
+      setTimeout(() => envOverlay.remove(), 700);
+    }, 950);
+  });
+
+  /* ---------- sparkle trail ---------- */
+  function spark(x, y, n = 1) {
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.textContent = Math.random() < 0.7 ? '✨' : '⭐';
+      s.style.left = (x - 8) + 'px';
+      s.style.top = (y - 8) + 'px';
+      s.style.fontSize = (9 + Math.random() * 9) + 'px';
+      s.style.setProperty('--dx', (Math.random() * 50 - 25) + 'px');
+      s.style.setProperty('--dy', (Math.random() * 50 - 25) + 'px');
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 750);
+    }
+  }
+  let lastSpark = 0;
+  document.addEventListener('mousemove', e => {
+    if (isTouch) return;
+    const now = performance.now();
+    if (now - lastSpark < 90) return;
+    lastSpark = now;
+    spark(e.clientX, e.clientY);
+  });
+  document.addEventListener('pointerdown', e => spark(e.clientX, e.clientY, 4));
+
   /* ---------- gecko eyes follow cursor / finger ---------- */
   const pupilL = document.getElementById('pupilL');
   const pupilR = document.getElementById('pupilR');
@@ -431,14 +711,43 @@
     if (e.touches[0]) moveEyes(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: true });
 
+  /* ---------- gecko tap : boing + blep ---------- */
+  const geckoWrap = document.getElementById('geckoWrap');
+  const geckoSvg = geckoWrap.querySelector('svg');
+  const tongue = document.getElementById('tongue');
+  geckoWrap.addEventListener('click', e => {
+    sndPop();
+    geckoSvg.classList.remove('boing');
+    void geckoSvg.offsetWidth;
+    geckoSvg.classList.add('boing');
+    tongue.setAttribute('opacity', '1');
+    setTimeout(() => tongue.setAttribute('opacity', '0'), 700);
+    const r = geckoWrap.getBoundingClientRect();
+    spark(r.left + r.width / 2, r.top + r.height / 3, 6);
+  });
+
+  /* ---------- starry eyes when hovering Yes ---------- */
+  const starEyes = document.getElementById('starEyes');
+  const pupils = document.getElementById('pupils');
+
   /* ---------- No button: run away + plead ---------- */
   const noBtn = document.getElementById('noBtn');
   const yesBtn = document.getElementById('yesBtn');
   const speech = document.getElementById('speech');
-  const geckoWrap = document.getElementById('geckoWrap');
   const tears = document.getElementById('tears');
   const mouthHappy = document.getElementById('mouthHappy');
   const mouthSad = document.getElementById('mouthSad');
+
+  if (!isTouch) {
+    yesBtn.addEventListener('mouseenter', () => {
+      starEyes.setAttribute('opacity', '1');
+      pupils.setAttribute('opacity', '0');
+    });
+    yesBtn.addEventListener('mouseleave', () => {
+      starEyes.setAttribute('opacity', '0');
+      pupils.setAttribute('opacity', '1');
+    });
+  }
 
   const pleas = [
     'Are you sure? 🤔',
@@ -486,6 +795,7 @@
 
   noBtn.addEventListener('click', e => {
     e.preventDefault();
+    sndAww();
     speech.textContent = pleas[Math.min(noCount, pleas.length - 1)];
     noCount++;
     geckoSad();
@@ -528,6 +838,7 @@
   }
 
   yesBtn.addEventListener('click', () => {
+    sndYay();
     geckoWrap.classList.remove('sad');
     geckoWrap.classList.add('excited');
     confettiBurst();
@@ -536,11 +847,16 @@
 
   /* ---------- date pick ---------- */
   let pickedDate = '';
+  let pickedNo = '';
   document.querySelectorAll('.date-card').forEach(card => {
     card.addEventListener('click', () => {
+      if (pickedDate) return;
       pickedDate = card.dataset.date;
+      pickedNo = card.dataset.no;
+      card.classList.add('picked');
+      sndTick();
       confettiBurst();
-      startQuiz();
+      setTimeout(startQuiz, 550);
     });
   });
 
@@ -552,6 +868,7 @@
   ];
   const answers = {};
   let quizIdx = 0;
+  let quizLocked = false;
 
   function startQuiz() {
     showScreen('screenQuiz');
@@ -560,8 +877,13 @@
 
   function renderQuiz() {
     const item = quiz[quizIdx];
+    quizLocked = false;
     document.getElementById('quizDots').innerHTML =
       quiz.map((_, i) => `<span class="${i <= quizIdx ? 'on' : ''}"></span>`).join('');
+    const box = document.getElementById('quizBox');
+    box.classList.remove('slide');
+    void box.offsetWidth;
+    box.classList.add('slide');
     document.getElementById('quizQ').textContent = item.q;
     const wrap = document.getElementById('quizOptions');
     wrap.innerHTML = '';
@@ -570,13 +892,16 @@
       b.className = 'quiz-opt';
       b.textContent = opt;
       b.addEventListener('click', () => {
+        if (quizLocked) return;
+        quizLocked = true;
+        b.classList.add('picked');
+        sndTick();
         answers[item.key] = opt;
         quizIdx++;
-        if (quizIdx < quiz.length) {
-          renderQuiz();
-        } else {
-          finish();
-        }
+        setTimeout(() => {
+          if (quizIdx < quiz.length) renderQuiz();
+          else finish();
+        }, 320);
       });
       wrap.appendChild(b);
     });
@@ -584,9 +909,12 @@
 
   /* ---------- finish + notify ---------- */
   function finish() {
-    document.getElementById('finalDate').textContent = '📅 ' + pickedDate;
+    document.getElementById('finalDate').textContent = pickedDate;
     document.getElementById('finalChips').innerHTML =
       quiz.map(item => `<span class="chip">${item.label}：${answers[item.key]}</span>`).join('');
+    document.getElementById('ticketNo').textContent =
+      'NO. ' + pickedNo + '-2026 ✦ 行程規劃中 · COMING SOON ✨';
+    sndYay();
     confettiBurst();
     showScreen('screenFinal');
     sendNotify();
