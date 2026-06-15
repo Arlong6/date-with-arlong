@@ -329,6 +329,29 @@
   }
   .quiz-opt:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px -12px rgba(150,80,50,0.5); }
   .quiz-opt.picked { border-color: var(--accent); background: var(--accent); color: #fff7ef; }
+  .quiz-opt.custom { color: var(--ink-soft); border-style: dashed; }
+  .quiz-custom { display: flex; gap: 8px; max-width: 320px; margin: 0 auto; }
+  .quiz-custom.shake { animation: shake 0.32s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .quiz-custom input {
+    flex: 1; min-width: 0;
+    border: 1.5px solid var(--accent);
+    border-radius: 15px;
+    padding: 14px 18px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--bg-soft);
+    outline: none;
+  }
+  .quiz-custom input::placeholder { color: var(--ink-soft); }
+  .quiz-custom button {
+    border: none; border-radius: 15px; width: 52px;
+    background: var(--accent); color: #fff7ef;
+    font-size: 19px; cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .quiz-custom button:hover { background: var(--accent-d); }
 
   /* ---- final : plan card ---- */
   .plan {
@@ -749,10 +772,50 @@
   const answers = {};
   let quizIdx = 0;
   let quizLocked = false;
+  const CUSTOM = '自己寫…';
 
   function startQuiz() {
     showScreen('screenQuiz');
     renderQuiz();
+  }
+
+  function advance(key, value, btn) {
+    if (quizLocked) return;
+    quizLocked = true;
+    if (btn) btn.classList.add('picked');
+    sndTick();
+    answers[key] = value;
+    quizIdx++;
+    setTimeout(() => {
+      if (quizIdx < quiz.length) renderQuiz();
+      else finish();
+    }, 300);
+  }
+
+  function showCustomInput(item, cb) {
+    const row = document.createElement('div');
+    row.className = 'quiz-custom';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 20;
+    input.placeholder = '打字告訴我…';
+    const ok = document.createElement('button');
+    ok.textContent = '→';
+    const submit = () => {
+      const v = input.value.trim();
+      if (!v) {
+        row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake');
+        input.focus();
+        return;
+      }
+      advance(item.key, v, null);
+    };
+    ok.addEventListener('click', submit);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+    row.appendChild(input);
+    row.appendChild(ok);
+    cb.replaceWith(row);
+    input.focus();
   }
 
   function renderQuiz() {
@@ -771,20 +834,14 @@
       const b = document.createElement('button');
       b.className = 'quiz-opt';
       b.textContent = opt;
-      b.addEventListener('click', () => {
-        if (quizLocked) return;
-        quizLocked = true;
-        b.classList.add('picked');
-        sndTick();
-        answers[item.key] = opt;
-        quizIdx++;
-        setTimeout(() => {
-          if (quizIdx < quiz.length) renderQuiz();
-          else finish();
-        }, 300);
-      });
+      b.addEventListener('click', () => advance(item.key, opt, b));
       wrap.appendChild(b);
     });
+    const cb = document.createElement('button');
+    cb.className = 'quiz-opt custom';
+    cb.textContent = CUSTOM;
+    cb.addEventListener('click', () => { if (!quizLocked) showCustomInput(item, cb); });
+    wrap.appendChild(cb);
   }
 
   /* ---------- finish + notify ---------- */
