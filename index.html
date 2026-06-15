@@ -3,575 +3,510 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>有一個問題想問你 🦎</title>
-<meta property="og:title" content="有一個問題想問你 🦎">
-<meta property="og:description" content="有一封信要給你，點開看看吧！">
+<title>給你的邀請</title>
+<meta property="og:title" content="給你的邀請">
+<meta property="og:description" content="Arlong 寄了一張邀請卡給你，點開看看。">
 <meta property="og:image" content="https://arlong6.github.io/date-with-arlong/og.png">
 <meta property="og:url" content="https://arlong6.github.io/date-with-arlong/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦎</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg:        #efe6d4;
+    --bg-soft:   #f6efe1;
+    --card:      #fffdf7;
+    --ink:       #463b30;
+    --ink-soft:  #8a7c69;
+    --line:      #e7dcc6;
+    --accent:    #bd6240;   /* terracotta */
+    --accent-d:  #a4502f;
+    --sage:      #6f7d56;
+    --gold:      #cf9a45;
+    --radius:    26px;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html, body { height: 100%; }
+
   body {
-    font-family: 'Baloo 2', 'Zen Maru Gothic', sans-serif;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink);
+    background: var(--bg);
     min-height: 100vh;
-    background: linear-gradient(160deg, #fff7e0 0%, #fdfdf2 45%, #e3f4ff 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow-x: hidden;
-    padding: 20px 0;
+    padding: 24px 0;
     position: relative;
   }
 
-  /* ---- floating background bits ---- */
-  .float-item {
-    position: fixed;
-    font-size: 24px;
-    opacity: 0.45;
-    animation: floatUp linear infinite;
+  /* soft depth blobs (no emoji, no rainbow) */
+  .blob {
+    position: fixed; z-index: 0;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.5;
     pointer-events: none;
-    z-index: 0;
   }
-  @keyframes floatUp {
-    0%   { transform: translateY(110vh) rotate(0deg); }
-    100% { transform: translateY(-10vh) rotate(360deg); }
+  .blob.a { width: 420px; height: 420px; background: #f1d9b0; top: -120px; left: -120px; }
+  .blob.b { width: 380px; height: 380px; background: #e7d2bd; bottom: -130px; right: -110px; }
+  .blob.c { width: 300px; height: 300px; background: #dfe0c4; bottom: 10%; left: -120px; opacity: 0.4; }
+
+  /* paper grain overlay */
+  .grain {
+    position: fixed; inset: 0; z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   /* ================= envelope intro ================= */
   #envOverlay {
     position: fixed; inset: 0; z-index: 50;
-    background: linear-gradient(160deg, #fff7e0 0%, #fdfdf2 45%, #e3f4ff 100%);
+    background: var(--bg);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 26px;
+    gap: 30px;
     transition: opacity 0.6s ease;
   }
   #envOverlay.fade { opacity: 0; pointer-events: none; }
-  .env-hint {
-    font-family: 'Zen Maru Gothic', sans-serif;
-    font-size: 20px; font-weight: 800; color: #d97b2e;
-    animation: hintPulse 1.8s ease-in-out infinite;
+  .env-eyebrow {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0.5px;
+    color: var(--accent);
   }
-  @keyframes hintPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   .envelope {
-    position: relative; width: 280px; height: 185px;
+    position: relative; width: 280px; height: 188px;
     cursor: pointer;
-    filter: drop-shadow(0 18px 30px rgba(232, 162, 61, 0.3));
-    animation: envFloat 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 22px 34px rgba(120, 86, 50, 0.22));
+    animation: envFloat 3.2s ease-in-out infinite;
   }
-  @keyframes envFloat { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
-  .env-body {
-    position: absolute; inset: 0;
-    background: #f3d49c; border-radius: 14px;   /* envelope interior */
-  }
+  @keyframes envFloat { 0%,100% { transform: translateY(0) rotate(-0.6deg); } 50% { transform: translateY(-9px) rotate(0.6deg); } }
+  .env-body { position: absolute; inset: 0; background: #e7cfa5; border-radius: 13px; }
   .letter {
-    position: absolute; left: 14px; right: 14px; top: 12px; height: 140px;
-    background: #fff; border-radius: 10px; z-index: 1;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: transform 0.55s cubic-bezier(.18,.89,.32,1.28) 0.25s;
+    position: absolute; left: 16px; right: 16px; top: 14px; height: 142px;
+    background: #fffdf6; border-radius: 8px; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: transform 0.6s cubic-bezier(.2,.8,.2,1) 0.25s;
   }
+  .letter .l-emoji { font-size: 30px; }
+  .letter .l-text { font-family: 'Fraunces', serif; font-style: italic; font-size: 14px; color: var(--ink-soft); }
   .env-pocket {
     position: absolute; inset: 0; z-index: 2;
-    background: #ffe3ae; border-radius: 14px;
-    clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+    background: #dcc093; border-radius: 13px;
+    clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
   }
   .env-flap {
-    position: absolute; top: 0; left: 0; right: 0; height: 105px; z-index: 3;
-    background: #ffd9a0;
+    position: absolute; top: 0; left: 0; right: 0; height: 106px; z-index: 3;
+    background: #e2c89a;
     clip-path: polygon(0 0, 100% 0, 50% 100%);
-    border-radius: 14px 14px 0 0;
+    border-radius: 13px 13px 0 0;
     transform-origin: top center;
     transition: transform 0.5s ease;
   }
   .seal {
     position: absolute; left: 50%; top: 100px; z-index: 4;
     transform: translate(-50%, -50%);
-    width: 56px; height: 56px; border-radius: 50%;
-    background: linear-gradient(135deg, #ffc14d, #ff9234);
+    width: 54px; height: 54px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #cf7350, var(--accent-d));
     display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    box-shadow: 0 4px 12px rgba(255, 146, 52, 0.45), inset 0 -3px 0 rgba(0,0,0,0.08);
+    font-size: 25px;
+    box-shadow: 0 4px 12px rgba(120, 60, 40, 0.4), inset 0 -2px 0 rgba(0,0,0,0.12);
     transition: all 0.4s ease;
   }
   .envelope.open .env-flap { transform: rotateX(180deg); z-index: 0; }
   .envelope.open .seal { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-  .envelope.open .letter { transform: translateY(-118px); z-index: 2; }
-  .env-tap {
-    font-family: 'Zen Maru Gothic', sans-serif;
-    font-size: 14px; color: #b89b6a;
-  }
+  .envelope.open .letter { transform: translateY(-120px); z-index: 2; }
+  .env-tap { font-size: 13px; letter-spacing: 2px; color: var(--ink-soft); }
 
   /* ================= main card ================= */
   .card {
     position: relative;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(8px);
-    border-radius: 36px;
-    box-shadow: 0 20px 60px rgba(232, 162, 61, 0.22), 0 0 0 6px rgba(255, 255, 255, 0.6);
-    padding: 44px 48px 52px;
-    max-width: 560px;
+    z-index: 3;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 70px -28px rgba(120, 86, 50, 0.4);
+    padding: 52px 52px 56px;
+    max-width: 540px;
     width: calc(100% - 32px);
     text-align: center;
     opacity: 0;
-    transform: scale(0.82) translateY(20px);
-    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.18,.89,.32,1.28);
+    transform: scale(0.9) translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2,.8,.2,1);
   }
-  .card.show { opacity: 1; transform: scale(1) translateY(0); }
+  .card.show { opacity: 1; transform: none; }
 
-  .screen { display: none; animation: popIn 0.5s cubic-bezier(.18,.89,.32,1.28); }
-  .screen.active { display: block; }
-  @keyframes popIn {
-    0% { transform: scale(0.7); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: rise 0.55s cubic-bezier(.2,.8,.2,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .eyebrow {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 6px;
   }
-
+  .label-cap {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
   h1 {
-    font-size: clamp(22px, 4.5vw, 30px);
-    color: #d97b2e;
-    line-height: 1.5;
-    margin: 18px 0 6px;
-    font-weight: 800;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(30px, 6.5vw, 42px);
+    color: var(--ink);
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+  }
+  .h1-zh {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 600;
+    font-size: clamp(18px, 3.6vw, 21px);
+    color: var(--ink);
+    line-height: 1.7;
+    margin-top: 14px;
+  }
+  .sign {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-top: 12px;
   }
   .subtitle {
-    color: #a89878;
-    font-size: 15px;
-    margin-bottom: 22px;
-    font-family: 'Zen Maru Gothic', sans-serif;
+    font-family: 'Noto Serif TC', serif;
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    line-height: 1.7;
+    margin-top: 10px;
   }
 
   /* ---- sound toggle ---- */
   #sndBtn {
-    position: fixed; top: 16px; right: 16px; z-index: 40;
-    width: 44px; height: 44px; border-radius: 50%;
-    border: none; cursor: pointer; font-size: 19px;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 4px 14px rgba(232, 162, 61, 0.25);
+    position: fixed; top: 18px; right: 18px; z-index: 40;
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--line); cursor: pointer; font-size: 16px;
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 6px 16px rgba(120, 86, 50, 0.14);
     transition: transform 0.15s ease;
   }
-  #sndBtn:hover { transform: scale(1.1); }
+  #sndBtn:hover { transform: scale(1.08); }
 
   /* ---- gecko ---- */
   .gecko-wrap {
-    width: 230px;
-    margin: 0 auto;
-    animation: bob 2.6s ease-in-out infinite;
+    width: 210px;
+    margin: 4px auto 22px;
+    animation: bob 3.4s ease-in-out infinite;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-9px); }
-  }
-  .gecko-wrap.excited { animation: bounceParty 0.55s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  .gecko-wrap.excited { animation: bounceParty 0.6s ease-in-out infinite; }
   @keyframes bounceParty {
-    0%, 100% { transform: translateY(0) rotate(-4deg); }
-    50% { transform: translateY(-18px) rotate(4deg); }
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-14px) rotate(3deg); }
   }
-  .gecko-wrap.sad { animation: shiver 0.18s linear infinite; }
-  @keyframes shiver {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-2px); }
-    75% { transform: translateX(2px); }
-  }
-  .gecko-wrap svg { transform-box: fill-box; transform-origin: 50% 85%; }
+  .gecko-wrap.sad { animation: shiver 0.2s linear infinite; }
+  @keyframes shiver { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+  .gecko-wrap svg { transform-box: fill-box; transform-origin: 50% 85%; display: block; }
   .gecko-wrap svg.boing { animation: boing 0.5s ease; }
   @keyframes boing {
-    0%   { transform: scale(1, 1); }
-    30%  { transform: scale(1.14, 0.84); }
-    60%  { transform: scale(0.9, 1.1); }
+    0% { transform: scale(1, 1); }
+    30% { transform: scale(1.12, 0.86); }
+    60% { transform: scale(0.92, 1.08); }
     100% { transform: scale(1, 1); }
   }
-  #tailG {
-    transform-box: view-box;
-    transform-origin: 76% 64%;
-    animation: wag 3s ease-in-out infinite;
-  }
-  @keyframes wag {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(8deg); }
-  }
-
-  /* eyelids blink */
-  .eyelid { animation: blink 4.2s infinite; transform-origin: center; }
-  @keyframes blink {
-    0%, 94%, 100% { transform: scaleY(0); }
-    96%, 98% { transform: scaleY(1); }
-  }
+  #tailG { transform-box: view-box; transform-origin: 76% 64%; animation: wag 3.6s ease-in-out infinite; }
+  @keyframes wag { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(6deg); } }
+  .eyelid { animation: blink 5s infinite; transform-origin: center; }
+  @keyframes blink { 0%,95%,100% { transform: scaleY(0); } 97% { transform: scaleY(1); } }
 
   .speech {
-    min-height: 34px;
-    font-size: 19px;
-    font-weight: 700;
-    color: #e8843d;
-    margin: 10px 0 4px;
-    font-family: 'Zen Maru Gothic', sans-serif;
+    min-height: 26px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 17px;
+    color: var(--accent);
+    margin: 4px 0 2px;
   }
 
-  /* ---- buttons area ---- */
-  .btn-area {
-    position: relative;
-    height: 120px;
-    margin-top: 18px;
-  }
+  /* ---- buttons ---- */
+  .btn-area { position: relative; height: 118px; margin-top: 22px; }
   .btn {
     border: none;
-    border-radius: 50px;
-    padding: 16px 44px;
-    font-size: 20px;
-    font-weight: 800;
-    font-family: 'Baloo 2', 'Zen Maru Gothic', sans-serif;
+    border-radius: 40px;
+    padding: 15px 40px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, font-size 0.25s ease, padding 0.25s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, font-size 0.25s ease, padding 0.25s ease, background 0.2s ease;
   }
-  .btn:active { transform: scale(0.93); }
-
+  .btn:active { transform: scale(0.95); }
   #yesBtn {
-    background: linear-gradient(135deg, #ffc14d, #ff9234);
-    color: white;
-    box-shadow: 0 8px 22px rgba(255, 146, 52, 0.4);
-    position: absolute;
-    left: 28%;
-    top: 50%;
+    background: var(--accent);
+    color: #fff7ef;
+    box-shadow: 0 12px 24px -8px rgba(150, 70, 40, 0.6);
+    position: absolute; left: 30%; top: 50%;
     transform: translate(-50%, -50%);
   }
-  #yesBtn:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 12px 30px rgba(255, 146, 52, 0.55);
-  }
-
+  #yesBtn:hover { background: var(--accent-d); transform: translate(-50%, -50%) scale(1.06); }
   #noBtn {
-    background: #f0f0f5;
-    color: #9a9ab0;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-    position: absolute;
-    left: 72%;
-    top: 50%;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--line);
+    position: absolute; left: 70%; top: 50%;
     transform: translate(-50%, -50%);
-    transition: left 0.25s cubic-bezier(.18,.89,.32,1.28), top 0.25s cubic-bezier(.18,.89,.32,1.28);
+    transition: left 0.28s cubic-bezier(.2,.8,.2,1), top 0.28s cubic-bezier(.2,.8,.2,1), font-size 0.25s ease, padding 0.25s ease;
   }
 
   /* ---- date select ---- */
-  .date-options {
-    display: flex;
-    gap: 18px;
-    justify-content: center;
-    margin-top: 24px;
-    flex-wrap: wrap;
-  }
+  .date-options { display: flex; gap: 16px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
   .date-card {
     position: relative;
-    background: linear-gradient(160deg, #fffdf5, #fff4dd);
-    border: 3px solid #ffd9a0;
-    border-radius: 24px;
-    padding: 22px 30px;
+    background: var(--bg-soft);
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    padding: 24px 30px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Zen Maru Gothic', sans-serif;
+    transition: all 0.22s ease;
+    min-width: 132px;
   }
-  .date-card:hover {
-    transform: translateY(-6px) scale(1.05);
-    border-color: #ff9234;
-    box-shadow: 0 14px 30px rgba(255, 146, 52, 0.28);
-  }
-  .date-card.picked {
-    border-color: #ff9234;
-    transform: scale(1.08);
-    box-shadow: 0 14px 30px rgba(255, 146, 52, 0.35);
-  }
+  .date-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 16px 30px -16px rgba(150, 80, 50, 0.5); }
+  .date-card.picked { border-color: var(--accent); background: #fbeee4; transform: translateY(-3px); }
   .date-card.picked::after {
-    content: '✔';
-    position: absolute; top: -12px; right: -12px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #ff9234; color: #fff;
-    font-size: 17px; line-height: 32px;
-    animation: popIn 0.3s cubic-bezier(.18,.89,.32,1.28);
+    content: '✓';
+    position: absolute; top: -11px; right: -11px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 15px; line-height: 30px;
+    box-shadow: 0 4px 10px -2px rgba(150,80,50,0.6);
   }
-  .date-card .emoji { font-size: 34px; display: block; margin-bottom: 6px; }
-  .date-card .day { font-size: 26px; font-weight: 900; color: #d97b2e; }
-  .date-card .week { font-size: 14px; color: #a89878; margin-top: 2px; }
+  .date-card .month { font-size: 13px; letter-spacing: 2px; color: var(--ink-soft); text-transform: uppercase; }
+  .date-card .day { font-family: 'Fraunces', serif; font-weight: 600; font-size: 40px; color: var(--accent); line-height: 1.1; margin: 2px 0; }
+  .date-card .week { font-family: 'Noto Serif TC', serif; font-size: 14px; color: var(--ink-soft); }
 
   /* ---- quiz ---- */
-  .progress-dots {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
-  .progress-dots span {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: #ffe2bb;
-    transition: all 0.25s ease;
-  }
-  .progress-dots span.on { background: #ff9234; transform: scale(1.25); }
+  .progress-dots { display: flex; gap: 7px; justify-content: center; margin-bottom: 22px; }
+  .progress-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--line); transition: all 0.25s ease; }
+  .progress-dots span.on { background: var(--accent); width: 20px; border-radius: 4px; }
 
-  #quizBox.slide { animation: slideIn 0.35s ease both; }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(46px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
+  #quizBox.slide { animation: slideIn 0.38s ease both; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(34px); } to { opacity: 1; transform: none; } }
   .quiz-q {
-    font-size: 22px;
-    font-weight: 800;
-    color: #d97b2e;
-    margin-bottom: 20px;
-    font-family: 'Zen Maru Gothic', sans-serif;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 21px; font-weight: 600; color: var(--ink);
+    margin-bottom: 22px;
   }
-  .quiz-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 320px;
-    margin: 0 auto;
-  }
+  .quiz-options { display: flex; flex-direction: column; gap: 11px; max-width: 320px; margin: 0 auto; }
   .quiz-opt {
-    background: linear-gradient(160deg, #fffdf5, #fff4dd);
-    border: 3px solid #ffd9a0;
-    border-radius: 18px;
-    padding: 14px 20px;
-    font-size: 17px;
-    font-weight: 700;
-    color: #b07a3a;
+    background: var(--bg-soft);
+    border: 1.5px solid var(--line);
+    border-radius: 15px;
+    padding: 14px 22px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 16px; font-weight: 500; color: var(--ink);
     cursor: pointer;
     transition: all 0.18s ease;
-    font-family: 'Zen Maru Gothic', sans-serif;
+    text-align: center;
   }
-  .quiz-opt:hover {
-    transform: translateX(6px) scale(1.03);
-    border-color: #ff9234;
-    box-shadow: 0 8px 20px rgba(255, 146, 52, 0.25);
-  }
-  .quiz-opt.picked {
-    border-color: #ff9234;
-    background: linear-gradient(135deg, #ffc14d, #ff9234);
-    color: #fff;
-    transform: scale(1.05);
-  }
+  .quiz-opt:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px -12px rgba(150,80,50,0.5); }
+  .quiz-opt.picked { border-color: var(--accent); background: var(--accent); color: #fff7ef; }
 
-  /* ---- final : date ticket ---- */
-  .ticket {
+  /* ---- final : plan card ---- */
+  .plan {
     position: relative;
-    max-width: 360px;
-    margin: 18px auto 0;
-    background: #fffdf6;
-    border: 3px solid #ffd9a0;
-    border-radius: 22px;
+    max-width: 350px;
+    margin: 22px auto 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 14px 34px rgba(232, 162, 61, 0.22);
-    font-family: 'Zen Maru Gothic', sans-serif;
+    box-shadow: 0 24px 50px -26px rgba(120, 86, 50, 0.5);
+    text-align: left;
   }
-  .ticket-head {
-    background: linear-gradient(135deg, #ffc14d, #ff9234);
-    color: #fff;
-    font-weight: 900;
-    letter-spacing: 3px;
-    padding: 12px;
-    font-size: 15px;
-    font-family: 'Baloo 2', sans-serif;
+  .plan-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 18px 24px 0;
   }
-  .ticket-body { padding: 20px 22px 18px; position: relative; }
-  .ticket-tear {
-    position: relative;
-    border-top: 3px dashed #ffd9a0;
-    margin: 0 14px;
+  .plan-cap { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); }
+  .plan-who { font-family: 'Fraunces', serif; font-style: italic; font-size: 14px; color: var(--accent); }
+  .plan-date {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: 46px; color: var(--ink); line-height: 1.1;
+    padding: 4px 24px 0;
   }
-  .ticket-tear::before, .ticket-tear::after {
-    content: '';
-    position: absolute; top: -14px;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: #fcf8ed;
-    border: 3px solid #ffd9a0;
+  .plan-date small { font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: 16px; color: var(--ink-soft); margin-left: 8px; }
+  .plan-tear { position: relative; border-top: 1.5px dashed var(--line); margin: 18px 18px 0; }
+  .plan-tear::before, .plan-tear::after {
+    content: ''; position: absolute; top: -13px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bg);
   }
-  .ticket-tear::before { left: -31px; clip-path: inset(0 0 0 50%); }
-  .ticket-tear::after  { right: -31px; clip-path: inset(0 50% 0 0); }
-  .final-date {
-    font-size: 38px;
-    font-weight: 900;
-    color: #ff9234;
-    margin: 4px 0 2px;
-    font-family: 'Baloo 2', sans-serif;
-  }
-  .admit { font-size: 14px; color: #a89878; font-weight: 700; margin-bottom: 4px; }
-  .chips {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 12px 0 4px;
-  }
+  .plan-tear::before { left: -30px; }
+  .plan-tear::after { right: -30px; }
+  .chips { display: flex; gap: 7px; flex-wrap: wrap; padding: 16px 24px 6px; }
   .chip {
-    background: #fff4dd;
-    border: 2px solid #ffd9a0;
-    color: #b07a3a;
-    border-radius: 30px;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .ticket-foot {
-    padding: 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 20px;
+    padding: 6px 13px;
     font-size: 12.5px;
-    color: #c08a4a;
-    letter-spacing: 1px;
+    font-weight: 500;
   }
+  .chip b { color: var(--accent); font-weight: 700; }
+  .plan-foot {
+    padding: 8px 24px 18px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .final-note { font-family: 'Noto Serif TC', serif; color: var(--ink-soft); font-size: 14px; margin-top: 18px; }
 
-  /* ---- sparkles & confetti ---- */
-  .spark {
-    position: fixed;
-    pointer-events: none;
-    z-index: 60;
-    animation: sparkFade 0.7s ease-out forwards;
-  }
-  @keyframes sparkFade {
-    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
-  }
+  /* ---- paper confetti (CSS, no emoji) ---- */
   .confetti {
-    position: fixed;
-    top: -20px;
-    font-size: 22px;
-    z-index: 10;
+    position: fixed; top: -16px; z-index: 30;
     pointer-events: none;
     animation: fall linear forwards;
   }
   @keyframes fall {
-    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.8; }
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(106vh) rotate(620deg); opacity: 0.7; }
   }
 
   @media (max-width: 480px) {
-    .card { padding: 32px 18px 40px; }
-    .btn { padding: 14px 34px; font-size: 18px; }
-    .gecko-wrap { width: 175px; }
-    .btn-area { height: 130px; }
-    .date-card { padding: 18px 24px; }
-    .envelope { width: 240px; height: 160px; }
-    .envelope .letter { top: 10px; height: 120px; }
-    .env-flap { height: 90px; }
-    .seal { top: 86px; }
-    .envelope.open .letter { transform: translateY(-102px); }
+    .card { padding: 40px 22px 44px; }
+    .gecko-wrap { width: 168px; }
+    .btn-area { height: 128px; }
+    .btn { padding: 14px 32px; font-size: 16px; }
+    .envelope { width: 244px; height: 164px; }
+    .envelope .letter { top: 12px; height: 122px; }
+    .env-flap { height: 92px; }
+    .seal { top: 88px; }
+    .envelope.open .letter { transform: translateY(-104px); }
+    .plan-date { font-size: 40px; }
   }
 </style>
 </head>
 <body>
 
-<button id="sndBtn" title="音效開關">🔊</button>
+<div class="blob a"></div>
+<div class="blob b"></div>
+<div class="blob c"></div>
+<div class="grain"></div>
+
+<button id="sndBtn" title="音效開關" aria-label="音效開關">♪</button>
 
 <!-- ===== envelope intro ===== -->
 <div id="envOverlay">
-  <div class="env-hint">有一封信要給你 📮</div>
+  <div class="env-eyebrow">A note for you</div>
   <div class="envelope" id="envelope">
     <div class="env-body"></div>
-    <div class="letter">🦎💌</div>
+    <div class="letter">
+      <span class="l-emoji">🦎</span>
+      <span class="l-text">to you</span>
+    </div>
     <div class="env-pocket"></div>
     <div class="env-flap"></div>
     <div class="seal">🦎</div>
   </div>
-  <div class="env-tap">點一下打開 ✨</div>
+  <div class="env-tap">輕觸開啟</div>
 </div>
 
 <div class="card" id="mainCard">
 
-  <!-- SCREEN 1 : the question -->
+  <!-- SCREEN 1 : the invitation -->
   <div class="screen active" id="screen1">
     <div class="gecko-wrap" id="geckoWrap">
-      <!-- ===== cute leopard gecko ===== -->
       <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
-        <!-- tail (wags) -->
         <g id="tailG">
           <path d="M178 158 Q 228 168 224 130 Q 222 108 200 116 Q 208 124 204 132 Q 198 142 178 140 Z"
-                fill="#ffd56b" stroke="#e8a23d" stroke-width="3" stroke-linejoin="round"/>
-          <ellipse cx="206" cy="130" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
+                fill="#f1ca74" stroke="#cf9a45" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse cx="206" cy="130" rx="5" ry="4" fill="#bd8a3c" opacity="0.5"/>
         </g>
-        <!-- body -->
-        <ellipse cx="128" cy="152" rx="58" ry="40" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
-        <!-- belly -->
-        <ellipse cx="124" cy="164" rx="38" ry="24" fill="#fff3d6"/>
-        <!-- spots -->
-        <ellipse cx="96" cy="132" rx="6" ry="5" fill="#c97b2d" opacity="0.55"/>
-        <ellipse cx="150" cy="126" rx="7" ry="5" fill="#c97b2d" opacity="0.55"/>
-        <ellipse cx="170" cy="148" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
-        <ellipse cx="120" cy="124" rx="5" ry="4" fill="#c97b2d" opacity="0.55"/>
-        <!-- legs -->
-        <ellipse cx="86" cy="186" rx="14" ry="9" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
-        <ellipse cx="162" cy="186" rx="14" ry="9" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
-        <!-- head -->
-        <ellipse cx="118" cy="84" rx="64" ry="56" fill="#ffd56b" stroke="#e8a23d" stroke-width="3"/>
-        <!-- head spots -->
-        <ellipse cx="78" cy="48" rx="6" ry="5" fill="#c97b2d" opacity="0.5"/>
-        <ellipse cx="158" cy="48" rx="6" ry="5" fill="#c97b2d" opacity="0.5"/>
-        <ellipse cx="118" cy="36" rx="5" ry="4" fill="#c97b2d" opacity="0.5"/>
-        <!-- BIG eyes -->
+        <ellipse cx="128" cy="152" rx="58" ry="40" fill="#f1ca74" stroke="#cf9a45" stroke-width="3"/>
+        <ellipse cx="124" cy="164" rx="38" ry="24" fill="#fdf1d6"/>
+        <ellipse cx="96" cy="132" rx="6" ry="5" fill="#bd8a3c" opacity="0.5"/>
+        <ellipse cx="150" cy="126" rx="7" ry="5" fill="#bd8a3c" opacity="0.5"/>
+        <ellipse cx="170" cy="148" rx="5" ry="4" fill="#bd8a3c" opacity="0.5"/>
+        <ellipse cx="120" cy="124" rx="5" ry="4" fill="#bd8a3c" opacity="0.5"/>
+        <ellipse cx="86" cy="186" rx="14" ry="9" fill="#f1ca74" stroke="#cf9a45" stroke-width="3"/>
+        <ellipse cx="162" cy="186" rx="14" ry="9" fill="#f1ca74" stroke="#cf9a45" stroke-width="3"/>
+        <ellipse cx="118" cy="84" rx="64" ry="56" fill="#f1ca74" stroke="#cf9a45" stroke-width="3"/>
+        <ellipse cx="78" cy="48" rx="6" ry="5" fill="#bd8a3c" opacity="0.45"/>
+        <ellipse cx="158" cy="48" rx="6" ry="5" fill="#bd8a3c" opacity="0.45"/>
+        <ellipse cx="118" cy="36" rx="5" ry="4" fill="#bd8a3c" opacity="0.45"/>
         <g id="eyes">
-          <circle cx="88" cy="82" r="24" fill="#fff" stroke="#e8a23d" stroke-width="2.5"/>
-          <circle cx="148" cy="82" r="24" fill="#fff" stroke="#e8a23d" stroke-width="2.5"/>
+          <circle cx="88" cy="82" r="24" fill="#fff" stroke="#cf9a45" stroke-width="2.5"/>
+          <circle cx="148" cy="82" r="24" fill="#fff" stroke="#cf9a45" stroke-width="2.5"/>
           <g id="pupils">
-            <circle id="pupilL" cx="90" cy="84" r="14" fill="#3b2b20"/>
-            <circle id="pupilR" cx="150" cy="84" r="14" fill="#3b2b20"/>
+            <circle id="pupilL" cx="90" cy="84" r="14" fill="#3a2c20"/>
+            <circle id="pupilR" cx="150" cy="84" r="14" fill="#3a2c20"/>
             <circle cx="95" cy="78" r="5.5" fill="#fff"/>
             <circle cx="155" cy="78" r="5.5" fill="#fff"/>
-            <circle cx="86" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
-            <circle cx="146" cy="89" r="2.6" fill="#fff" opacity="0.85"/>
+            <circle cx="86" cy="89" r="2.4" fill="#fff" opacity="0.85"/>
+            <circle cx="146" cy="89" r="2.4" fill="#fff" opacity="0.85"/>
           </g>
-          <!-- starry eyes when hovering Yes -->
-          <g id="starEyes" opacity="0">
-            <text x="73" y="93" font-size="30">✨</text>
-            <text x="133" y="93" font-size="30">✨</text>
-          </g>
-          <!-- blinking eyelids -->
-          <ellipse class="eyelid" cx="88" cy="82" rx="24" ry="24" fill="#ffd56b"/>
-          <ellipse class="eyelid" cx="148" cy="82" rx="24" ry="24" fill="#ffd56b"/>
+          <ellipse class="eyelid" cx="88" cy="82" rx="24" ry="24" fill="#f1ca74"/>
+          <ellipse class="eyelid" cx="148" cy="82" rx="24" ry="24" fill="#f1ca74"/>
         </g>
-        <!-- tears (hidden until sad) -->
         <g id="tears" opacity="0">
-          <path d="M70 104 Q 66 116 70 122 Q 74 116 70 104" fill="#7ec8f5"/>
-          <path d="M166 104 Q 162 116 166 122 Q 170 116 166 104" fill="#7ec8f5"/>
+          <path d="M70 104 Q 66 116 70 122 Q 74 116 70 104" fill="#8fc4e8"/>
+          <path d="M166 104 Q 162 116 166 122 Q 170 116 166 104" fill="#8fc4e8"/>
         </g>
-        <!-- blush -->
-        <ellipse cx="66" cy="106" rx="10" ry="6" fill="#ffc6a3" opacity="0.8"/>
-        <ellipse cx="170" cy="106" rx="10" ry="6" fill="#ffc6a3" opacity="0.8"/>
-        <!-- mouth: happy / sad swap -->
-        <path id="mouthHappy" d="M104 116 Q 118 128 132 116" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round"/>
-        <path id="mouthSad" d="M104 124 Q 118 112 132 124" fill="none" stroke="#b5752e" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
-        <!-- blep tongue (hidden, shows on tap) -->
-        <ellipse id="tongue" cx="127" cy="121" rx="6" ry="9" fill="#ff8fa3" stroke="#e76e8a" stroke-width="2" opacity="0"/>
-        <!-- tiny deco -->
-        <text x="196" y="50" font-size="22">✨</text>
+        <ellipse cx="66" cy="106" rx="9" ry="5" fill="#e7a07e" opacity="0.55"/>
+        <ellipse cx="170" cy="106" rx="9" ry="5" fill="#e7a07e" opacity="0.55"/>
+        <path id="mouthHappy" d="M105 116 Q 118 127 131 116" fill="none" stroke="#a06a35" stroke-width="3.4" stroke-linecap="round"/>
+        <path id="mouthSad" d="M105 124 Q 118 113 131 124" fill="none" stroke="#a06a35" stroke-width="3.4" stroke-linecap="round" opacity="0"/>
+        <ellipse id="tongue" cx="127" cy="121" rx="5.5" ry="8" fill="#e7849a" stroke="#cf6a82" stroke-width="2" opacity="0"/>
       </svg>
     </div>
 
-    <h1>Would you accept going out<br>on a date with <span style="color:#ff9234">Arlong</span>? 🦎</h1>
+    <div class="label-cap">An invitation</div>
+    <h1>Free this weekend?</h1>
+    <div class="h1-zh">這個週末，要不要一起出去走走？</div>
+    <div class="sign">— from Arlong</div>
 
     <div class="speech" id="speech"></div>
 
     <div class="btn-area" id="btnArea">
-      <button class="btn" id="yesBtn">Yes! 🙌</button>
-      <button class="btn" id="noBtn">No</button>
+      <button class="btn" id="yesBtn">好啊</button>
+      <button class="btn" id="noBtn">再看看</button>
     </div>
   </div>
 
   <!-- SCREEN 2 : pick a date -->
   <div class="screen" id="screen2">
-    <div style="font-size:64px;">🦎🎉</div>
-    <h1>Nice！</h1>
-    <p class="subtitle">那要選哪一天呢？</p>
+    <div class="eyebrow">Lovely.</div>
+    <h1 style="font-size:clamp(26px,5.5vw,34px);">那挑一天吧</h1>
+    <p class="subtitle">看哪天比較順，兩天都可以。</p>
     <div class="date-options">
-      <div class="date-card" data-date="6/20 (六)" data-no="0620">
-        <span class="emoji">🌞</span>
-        <div class="day">6 / 20</div>
+      <div class="date-card" data-date="6 / 20" data-week="星期六" data-no="0620">
+        <div class="month">June</div>
+        <div class="day">20</div>
         <div class="week">星期六</div>
       </div>
-      <div class="date-card" data-date="6/21 (日)" data-no="0621">
-        <span class="emoji">🌈</span>
-        <div class="day">6 / 21</div>
+      <div class="date-card" data-date="6 / 21" data-week="星期日" data-no="0621">
+        <div class="month">June</div>
+        <div class="day">21</div>
         <div class="week">星期日</div>
       </div>
     </div>
@@ -579,8 +514,8 @@
 
   <!-- SCREEN 3 : mini quiz -->
   <div class="screen" id="screenQuiz">
-    <div style="font-size:48px;">📋🦎</div>
-    <p class="subtitle" style="margin-top:10px;">順便做個小調查，行程會照這個排～</p>
+    <div class="label-cap">A few quick questions</div>
+    <p class="subtitle" style="margin-bottom:22px;">回答幾個小問題，我照你的喜好安排行程。</p>
     <div class="progress-dots" id="quizDots"></div>
     <div id="quizBox">
       <div class="quiz-q" id="quizQ"></div>
@@ -588,38 +523,26 @@
     </div>
   </div>
 
-  <!-- SCREEN 4 : date ticket -->
+  <!-- SCREEN 4 : plan card -->
   <div class="screen" id="screenFinal">
-    <div style="font-size:56px;">🎫✨</div>
-    <h1 style="margin-top:6px;">就這麼說定了！</h1>
-    <div class="ticket">
-      <div class="ticket-head">DATE TICKET</div>
-      <div class="ticket-body">
-        <div class="final-date" id="finalDate"></div>
-        <div class="admit">ADMIT 2 ── 你 ＆ Arlong 🦎</div>
-        <div class="chips" id="finalChips"></div>
+    <div class="eyebrow">It's a plan.</div>
+    <h1 style="font-size:clamp(26px,5.5vw,34px);">那就這天見</h1>
+    <div class="plan">
+      <div class="plan-head">
+        <span class="plan-cap">Weekend Plan</span>
+        <span class="plan-who">Arlong ＋ 你</span>
       </div>
-      <div class="ticket-tear"></div>
-      <div class="ticket-foot" id="ticketNo">行程規劃中 · COMING SOON ✨</div>
+      <div class="plan-date" id="finalDate"></div>
+      <div class="plan-tear"></div>
+      <div class="chips" id="finalChips"></div>
+      <div class="plan-foot" id="planFoot">行程安排中，敲定後再告訴你。</div>
     </div>
+    <p class="final-note">先把這天留著，剩下的交給我。</p>
   </div>
 
 </div>
 
 <script>
-  /* ---------- floating background ---------- */
-  const floatEmojis = ['✨', '🦎', '🌿', '⭐', '☁️', '🍀'];
-  for (let i = 0; i < 14; i++) {
-    const el = document.createElement('div');
-    el.className = 'float-item';
-    el.textContent = floatEmojis[i % floatEmojis.length];
-    el.style.left = Math.random() * 100 + 'vw';
-    el.style.fontSize = (16 + Math.random() * 20) + 'px';
-    el.style.animationDuration = (9 + Math.random() * 14) + 's';
-    el.style.animationDelay = (-Math.random() * 18) + 's';
-    document.body.appendChild(el);
-  }
-
   const isTouch = window.matchMedia('(hover: none)').matches;
 
   /* ---------- tiny synth sound effects ---------- */
@@ -628,9 +551,9 @@
   const sndBtn = document.getElementById('sndBtn');
   sndBtn.addEventListener('click', () => {
     soundOn = !soundOn;
-    sndBtn.textContent = soundOn ? '🔊' : '🔇';
+    sndBtn.style.opacity = soundOn ? '1' : '0.4';
   });
-  function tone(freq, dur, type = 'sine', slideTo = null, gain = 0.07, delay = 0) {
+  function tone(freq, dur, type = 'sine', slideTo = null, gain = 0.05, delay = 0) {
     if (!soundOn) return;
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -646,16 +569,16 @@
       osc.start(t0); osc.stop(t0 + dur + 0.02);
     } catch (e) {}
   }
-  const sndPop  = () => tone(520, 0.1, 'sine', 220);
-  const sndTick = () => tone(740, 0.07, 'triangle');
-  const sndYay  = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.16, 'sine', null, 0.06, i * 0.09));
-  const sndAww  = () => tone(430, 0.28, 'sine', 230, 0.05);
+  const sndPop  = () => tone(440, 0.1, 'sine', 280);
+  const sndTick = () => tone(620, 0.07, 'triangle');
+  const sndYay  = () => [392, 523, 659].forEach((f, i) => tone(f, 0.18, 'sine', null, 0.045, i * 0.1));
+  const sndAww  = () => tone(380, 0.26, 'sine', 240, 0.04);
 
   /* ---------- envelope intro ---------- */
   const envOverlay = document.getElementById('envOverlay');
   const envelope = document.getElementById('envelope');
   let envOpened = false;
-  if (location.hash === '#open') {   // skip intro (testing / direct link)
+  if (location.hash === '#open') {
     envOpened = true;
     envOverlay.remove();
     document.getElementById('mainCard').classList.add('show');
@@ -672,37 +595,12 @@
     }, 950);
   });
 
-  /* ---------- sparkle trail ---------- */
-  function spark(x, y, n = 1) {
-    for (let i = 0; i < n; i++) {
-      const s = document.createElement('div');
-      s.className = 'spark';
-      s.textContent = Math.random() < 0.7 ? '✨' : '⭐';
-      s.style.left = (x - 8) + 'px';
-      s.style.top = (y - 8) + 'px';
-      s.style.fontSize = (9 + Math.random() * 9) + 'px';
-      s.style.setProperty('--dx', (Math.random() * 50 - 25) + 'px');
-      s.style.setProperty('--dy', (Math.random() * 50 - 25) + 'px');
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 750);
-    }
-  }
-  let lastSpark = 0;
-  document.addEventListener('mousemove', e => {
-    if (isTouch) return;
-    const now = performance.now();
-    if (now - lastSpark < 90) return;
-    lastSpark = now;
-    spark(e.clientX, e.clientY);
-  });
-  document.addEventListener('pointerdown', e => spark(e.clientX, e.clientY, 4));
-
   /* ---------- gecko eyes follow cursor / finger ---------- */
   const pupilL = document.getElementById('pupilL');
   const pupilR = document.getElementById('pupilR');
   function moveEyes(x, y) {
-    const dx = (x / window.innerWidth - 0.5) * 8;
-    const dy = (y / window.innerHeight - 0.5) * 8;
+    const dx = (x / window.innerWidth - 0.5) * 7;
+    const dy = (y / window.innerHeight - 0.5) * 7;
     pupilL.setAttribute('cx', 90 + dx);  pupilL.setAttribute('cy', 84 + dy);
     pupilR.setAttribute('cx', 150 + dx); pupilR.setAttribute('cy', 84 + dy);
   }
@@ -715,22 +613,16 @@
   const geckoWrap = document.getElementById('geckoWrap');
   const geckoSvg = geckoWrap.querySelector('svg');
   const tongue = document.getElementById('tongue');
-  geckoWrap.addEventListener('click', e => {
+  geckoWrap.addEventListener('click', () => {
     sndPop();
     geckoSvg.classList.remove('boing');
     void geckoSvg.offsetWidth;
     geckoSvg.classList.add('boing');
     tongue.setAttribute('opacity', '1');
-    setTimeout(() => tongue.setAttribute('opacity', '0'), 700);
-    const r = geckoWrap.getBoundingClientRect();
-    spark(r.left + r.width / 2, r.top + r.height / 3, 6);
+    setTimeout(() => tongue.setAttribute('opacity', '0'), 650);
   });
 
-  /* ---------- starry eyes when hovering Yes ---------- */
-  const starEyes = document.getElementById('starEyes');
-  const pupils = document.getElementById('pupils');
-
-  /* ---------- No button: run away + plead ---------- */
+  /* ---------- No button: gentle dodge ---------- */
   const noBtn = document.getElementById('noBtn');
   const yesBtn = document.getElementById('yesBtn');
   const speech = document.getElementById('speech');
@@ -738,25 +630,14 @@
   const mouthHappy = document.getElementById('mouthHappy');
   const mouthSad = document.getElementById('mouthSad');
 
-  if (!isTouch) {
-    yesBtn.addEventListener('mouseenter', () => {
-      starEyes.setAttribute('opacity', '1');
-      pupils.setAttribute('opacity', '0');
-    });
-    yesBtn.addEventListener('mouseleave', () => {
-      starEyes.setAttribute('opacity', '0');
-      pupils.setAttribute('opacity', '1');
-    });
-  }
-
   const pleas = [
-    'Are you sure? 🤔',
-    'Please don’t 🥺',
-    'Really...? 😢',
-    '再考慮一下嘛',
-    'QQ',
-    'Last chance! 🙏',
-    '只剩 Yes 可以按囉 😆',
+    '欸，再想一下嘛',
+    '就一天而已',
+    '陪我出去走走啦',
+    '真的不行嗎',
+    '拜託啦',
+    '機會難得欸',
+    '看來只剩「好啊」可以按了',
   ];
   let noCount = 0;
 
@@ -771,26 +652,21 @@
       tears.setAttribute('opacity', '0');
       mouthHappy.setAttribute('opacity', '1');
       mouthSad.setAttribute('opacity', '0');
-    }, 1600);
+    }, 1500);
   }
 
   function dodge() {
-    const x = 15 + Math.random() * 70;   // % within area
-    const y = 10 + Math.random() * 80;
+    const x = 18 + Math.random() * 64;
+    const y = 12 + Math.random() * 76;
     noBtn.style.left = x + '%';
     noBtn.style.top = y + '%';
-    // occasionally escape sideways (desktop only, keeps it tappable on phones)
     if (!isTouch && Math.random() < 0.3) {
-      noBtn.style.left = (Math.random() < 0.5 ? -8 : 108) + '%';
+      noBtn.style.left = (Math.random() < 0.5 ? -6 : 106) + '%';
     }
   }
 
-  // on touch devices mouseenter would swallow the tap, so dodge only happens on click
   if (!isTouch) {
-    noBtn.addEventListener('mouseenter', () => {
-      dodge();
-      geckoSad();
-    });
+    noBtn.addEventListener('mouseenter', () => { dodge(); geckoSad(); });
   }
 
   noBtn.addEventListener('click', e => {
@@ -800,34 +676,37 @@
     noCount++;
     geckoSad();
     dodge();
-    // Yes grows, No shrinks (capped so it stays inside small screens)
-    const maxGrow = isTouch || window.innerWidth < 480 ? 1.5 : 2.2;
-    const grow = Math.min(1 + noCount * 0.18, maxGrow);
-    yesBtn.style.fontSize = (20 * grow) + 'px';
-    yesBtn.style.padding = (16 * grow) + 'px ' + (44 * grow) + 'px';
-    const shrink = Math.max(0.45, 1 - noCount * 0.1);
-    noBtn.style.fontSize = (20 * shrink) + 'px';
-    noBtn.style.padding = (16 * shrink) + 'px ' + (44 * shrink) + 'px';
+    const maxGrow = isTouch || window.innerWidth < 480 ? 1.45 : 2.0;
+    const grow = Math.min(1 + noCount * 0.16, maxGrow);
+    yesBtn.style.fontSize = (17 * grow) + 'px';
+    yesBtn.style.padding = (15 * grow) + 'px ' + (40 * grow) + 'px';
+    const shrink = Math.max(0.5, 1 - noCount * 0.09);
+    noBtn.style.fontSize = (17 * shrink) + 'px';
+    noBtn.style.padding = (15 * shrink) + 'px ' + (40 * shrink) + 'px';
     if (noCount >= 7) {
       noBtn.style.display = 'none';
-      speech.textContent = 'No 按鈕逃跑了 😆';
+      speech.textContent = '';
       yesBtn.style.left = '50%';
     }
   });
 
-  /* ---------- confetti ---------- */
-  function confettiBurst() {
-    const pieces = ['🎉', '✨', '🦎', '⭐', '🎊', '🌟'];
-    for (let i = 0; i < 60; i++) {
+  /* ---------- paper confetti ---------- */
+  function confettiBurst(n = 46) {
+    const colors = ['#bd6240', '#cf9a45', '#6f7d56', '#e7cfa5', '#d98b66'];
+    for (let i = 0; i < n; i++) {
       const c = document.createElement('div');
       c.className = 'confetti';
-      c.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+      const w = 6 + Math.random() * 7;
+      c.style.width = w + 'px';
+      c.style.height = (w * (0.4 + Math.random() * 0.7)) + 'px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.borderRadius = Math.random() < 0.5 ? '2px' : '50%';
       c.style.left = Math.random() * 100 + 'vw';
-      c.style.fontSize = (14 + Math.random() * 22) + 'px';
-      c.style.animationDuration = (2 + Math.random() * 3) + 's';
-      c.style.animationDelay = (Math.random() * 0.8) + 's';
+      c.style.opacity = 0.85;
+      c.style.animationDuration = (2.4 + Math.random() * 2.6) + 's';
+      c.style.animationDelay = (Math.random() * 0.5) + 's';
       document.body.appendChild(c);
-      setTimeout(() => c.remove(), 6000);
+      setTimeout(() => c.remove(), 5600);
     }
   }
 
@@ -842,29 +721,30 @@
     geckoWrap.classList.remove('sad');
     geckoWrap.classList.add('excited');
     confettiBurst();
-    setTimeout(() => showScreen('screen2'), 600);
+    setTimeout(() => showScreen('screen2'), 650);
   });
 
   /* ---------- date pick ---------- */
   let pickedDate = '';
+  let pickedWeek = '';
   let pickedNo = '';
   document.querySelectorAll('.date-card').forEach(card => {
     card.addEventListener('click', () => {
       if (pickedDate) return;
       pickedDate = card.dataset.date;
+      pickedWeek = card.dataset.week;
       pickedNo = card.dataset.no;
       card.classList.add('picked');
       sndTick();
-      confettiBurst();
-      setTimeout(startQuiz, 550);
+      setTimeout(startQuiz, 480);
     });
   });
 
   /* ---------- mini quiz ---------- */
   const quiz = [
-    { key: 'food',  label: '想吃',   q: '當天想吃什麼？🍴',     options: ['🍣 日式', '🍝 義式', '🍲 火鍋', '🍰 甜點咖啡', '🤷 都可以'] },
-    { key: 'scene', label: '室內外', q: '喜歡室內還是戶外？🌤️', options: ['🌳 戶外走走', '🏛️ 室內行程', '✌️ 混搭都好'] },
-    { key: 'style', label: '風格',   q: '想去哪種地方？📍',     options: ['☕ 咖啡廳', '🎨 展覽', '🌊 郊外踏青', '🎳 遊戲娛樂'] },
+    { key: 'food',  label: '吃',   q: '當天想吃什麼？', options: ['日式', '義式', '火鍋', '甜點咖啡', '都可以'] },
+    { key: 'scene', label: '場景', q: '比較想待室內還是戶外？', options: ['戶外走走', '室內行程', '都好'] },
+    { key: 'style', label: '步調', q: '想去哪一種地方？', options: ['咖啡廳', '看展覽', '郊外踏青', '玩點什麼'] },
   ];
   const answers = {};
   let quizIdx = 0;
@@ -901,7 +781,7 @@
         setTimeout(() => {
           if (quizIdx < quiz.length) renderQuiz();
           else finish();
-        }, 320);
+        }, 300);
       });
       wrap.appendChild(b);
     });
@@ -909,31 +789,30 @@
 
   /* ---------- finish + notify ---------- */
   function finish() {
-    document.getElementById('finalDate').textContent = pickedDate;
+    document.getElementById('finalDate').innerHTML =
+      pickedDate + ' <small>' + pickedWeek + '</small>';
     document.getElementById('finalChips').innerHTML =
-      quiz.map(item => `<span class="chip">${item.label}：${answers[item.key]}</span>`).join('');
-    document.getElementById('ticketNo').textContent =
-      'NO. ' + pickedNo + '-2026 ✦ 行程規劃中 · COMING SOON ✨';
+      quiz.map(item => `<span class="chip"><b>${item.label}</b> ${answers[item.key]}</span>`).join('');
     sndYay();
-    confettiBurst();
+    confettiBurst(56);
     showScreen('screenFinal');
     sendNotify();
   }
 
   function sendNotify() {
-    if (location.protocol === 'file:') return;  // local preview, don't send
+    if (location.protocol === 'file:') return;
     const endpoint = atob('aHR0cHM6Ly9mb3Jtc3VibWl0LmNvL2FqYXgvdG9ueTA5MTIwNDU1OTZAZ21haWwuY29t');
     fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
-        _subject: '🦎 她答應了！選了 ' + pickedDate,
+        _subject: '出遊敲定 — ' + pickedDate + ' ' + pickedWeek,
         _template: 'table',
-        日期: pickedDate,
+        日期: pickedDate + '（' + pickedWeek + '）',
         想吃: answers.food || '-',
-        室內戶外: answers.scene || '-',
-        行程風格: answers.style || '-',
-        按了幾次No: String(noCount),
+        室內外: answers.scene || '-',
+        想去: answers.style || '-',
+        考慮了幾下: String(noCount),
         填答時間: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
       }),
     }).catch(() => {});
